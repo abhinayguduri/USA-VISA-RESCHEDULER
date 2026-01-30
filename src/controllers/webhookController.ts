@@ -11,12 +11,14 @@ export async function handleWebhook (req: Request, res: Response) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-    console.log('[Stripe Webhook] Event received:', event.type);
-  } catch (err: any) {
-    console.error('[Stripe Webhook] Signature verification failed:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
+  // 1. Switch to the Async version
+  // 2. Add 'await'
+  event = await stripe.webhooks.constructEventAsync(req.body, sig, webhookSecret);
+  console.log('[Stripe Webhook] Event received:', event.type);
+} catch (err: any) {
+  console.error('[Stripe Webhook] Signature verification failed:', err.message);
+  return res.status(400).send(`Webhook Error: ${err.message}`);
+}
 
   try {
     switch (event.type) {
