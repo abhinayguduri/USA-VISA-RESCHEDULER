@@ -10,9 +10,16 @@ const app = express();
 app.use(cors({
     origin: '*', 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'signature'],
+    allowedHeaders: ['Content-Type','Access-Control-Allow-Origin', 'Authorization', 'X-Requested-With', 'signature'],
 }));
-app.use(express.json()); 
+
+app.use(express.json({
+    verify: (req: any, res, buf) => {
+        if (req.originalUrl.startsWith('/webhook')) {
+            req.rawBody = buf; // This saves the 'raw' version for Stripe
+        }
+    }
+}));
 
 
 
