@@ -4,7 +4,11 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-export async function handleWebhook (req: Request, res: Response) {
+
+interface CustomRequest extends Request {
+  rawBody?: Buffer; 
+}
+export async function handleWebhook (req: CustomRequest, res: Response) {
   const sig = req.headers['stripe-signature'] as string;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
 
@@ -13,7 +17,7 @@ export async function handleWebhook (req: Request, res: Response) {
   try {
   // 1. Switch to the Async version
   // 2. Add 'await'
-  event = await stripe.webhooks.constructEventAsync(req.body, sig, webhookSecret);
+  event = await stripe.webhooks.constructEventAsync(req.rawBody as Buffer, sig, webhookSecret);
   console.log('[Stripe Webhook] Event received:', event.type);
 } catch (err: any) {
   console.error('[Stripe Webhook] Signature verification failed:', err.message);
